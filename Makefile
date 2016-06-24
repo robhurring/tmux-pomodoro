@@ -11,6 +11,9 @@ acceptance: build unit
 build: build-dependencies
 	go build -o bin/pomodoro
 
+install: build
+	cp ./bin/pomodoro ~/bin/pomodoro
+
 build-dependencies:
 	go get -t
 	go get golang.org/x/tools/cmd/cover

@@ -11,13 +11,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justincampbell/tmux-pomodoro/tmux"
+	"github.com/robhurring/tmux-pomodoro/macos"
+	"github.com/robhurring/tmux-pomodoro/tmux"
 )
 
 const timeFormat = time.RFC3339
 
 var duration, _ = time.ParseDuration("25m")
 var noTime time.Time
+var sound = "Pop.aiff"
 
 const usage = `
 github.com/justincampbell/tmux-pomodoro
@@ -107,6 +109,7 @@ func parseCommand(state State, command string) (newState State, output Output) {
 	case "beep":
 		<-time.NewTicker(duration).C
 		_ = tmux.DisplayMessage("Pomodoro done, take a break!")
+		playSound(3)
 		refreshTmux()
 	case "":
 		flag.Usage()
@@ -187,6 +190,21 @@ func readExistingTime() time.Time {
 	}
 
 	return result
+}
+
+func playSound(n int) {
+	interval := time.Millisecond * 100
+	ticker := time.NewTicker(interval)
+	timer := time.NewTimer(interval * 3)
+
+	go func() {
+		for range ticker.C {
+			macos.PlaySound(sound)
+		}
+	}()
+
+	<-timer.C
+	ticker.Stop()
 }
 
 func filePath() string {
